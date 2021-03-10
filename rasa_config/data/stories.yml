@@ -1,0 +1,33 @@
+version: "2.0"
+
+stories:
+
+- story: feliz
+  steps:
+  - intent: saludar
+  - action: utter_saludo
+  - intent: mood_bien
+  - action: utter_feliz
+
+- story: dolor
+  steps:
+  - intent: saludar
+  - action: utter_saludo
+  - intent: mood_dolor
+  - action: utter_solucion_pastilla
+  - action: utter_ayuda
+  - intent: afirmar
+  - action: utter_feliz
+  - intent: negar
+  - action: utter_despedida
+
+
+- story: triste
+  steps:
+  - intent: saludar
+  - action: utter_saludo
+  - intent: mood_mal
+  - action: utter_animar
+  - action: utter_ayuda
+  - intent: negar
+  - action: utter_despedida

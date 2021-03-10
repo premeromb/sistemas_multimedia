@@ -1,0 +1,51 @@
+version: "2.0"
+
+intents:
+  - saludar
+  - despedir
+  - afirmar
+  - negar
+  - cantidad_poco
+  - cantidad_mucho
+  - mood_bien
+  - mood_mal
+  - bot_challenge
+
+responses:
+  utter_saludo:
+  - text: "Hola, ¿qué tal?"
+
+  utter_animar:
+  - text: "Here is something to cheer you up:"
+    image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_ayuda:
+  - text: "¿Te ha ayudado?"
+
+  utter_feliz:
+  - text: "¡Estupendo, me alegro!"
+
+  utter_preocupado:
+  - text: "¿Qué te pasa?"
+
+  utter_pregunta_dolor:
+  - text: "¿Qué te duele?"
+
+  utter_solucion_pastilla:
+  - text: "Tómese la pastilla"
+
+
+  utter_despedida:
+  - text: "Bye"
+
+  utter_iamabot:
+  
+  - text: "I am a bot, powered by Rasa."
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+  
+  
+actions:
+    - action_hello_world

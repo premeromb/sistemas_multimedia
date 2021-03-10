@@ -1,0 +1,99 @@
+version: "2.0"
+
+nlu:
+- intent: saludar
+  examples: |
+    - hola
+    - hey 
+    - hi
+    - ¡qué pasa!
+    - buenos dias
+    - saludos
+    - buenas tardes
+    - buenas noches
+ 
+- intent: despedir
+  examples: |
+    - adios
+    - hasta luego
+    - nos vemos
+    - hasta otra
+    - by
+ 
+- intent: afirmar
+  examples: |
+    - sí
+    - si claro
+    - por supuesto
+    - ok
+    - afirmativo
+    - así es
+    - sin duda
+    - correcto
+
+- intent: negar
+  examples: |
+    - no
+    - para nada
+    - no me gusta
+    - nunca
+    - claro que no
+    - jamás
+    - no no no
+
+- intent: cantidad_poco
+  examples: |
+    - nada
+    - poco
+    - no mucho
+    - casi nada
+    - poquito
+    - apenas
+    - algo
+
+- intent: cantidad_mucho
+  examples: |
+    - mucho
+    - muchisimo
+    - bastante
+    - demasiado
+    - horror
+
+- intent: mood_bien
+  examples: |
+    - bien
+    - comodo
+    - feliz
+    - tranquilo
+    - agusto 
+    - estupendo
+    - en paz
+    - genial
+
+- intent: mood_mal
+  examples: |
+    - mal
+    - fatal
+    - azaroso
+    - deprimido
+    - pésimo
+ 
+
+- intent: mood_dolor
+  examples: |
+    - me duele
+    - dolorido
+    - molesto
+    - dolor 
+    - me duele la [garganta] (nombre_dolor)
+    - me duele la [cabeza] (nombre_dolor)
+    - me duele [poco] (cantidad_dolor)
+    - me duele [mucho] (cantidad_dolor)
+
+
+- intent: bot_challenge
+  examples: |
+    - ¿Quién eres?
+    - ¿Eres humano?
+    - ¿Estas vivo?
+    - ¿Con quién hablo?

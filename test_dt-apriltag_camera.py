@@ -31,24 +31,29 @@ while(vid.isOpened()):
     # Display the resulting frame
     cv2.imshow('frame', grayFrame)
 
-    tags = at_detector.detect(grayFrame, True, camera_params, 0.065)
+    tags = at_detector.detect(grayFrame, True, camera_params, 0.2)
     
     
-    tag_ids = [tag.tag_id for tag in tags if tag.tag_id >= 0]
-    if len(tag_ids) > 0:
-        print(tag_ids)
+    
+    tag_ids = [tag.tag_id for tag in tags]
+
+    #if len(tag_ids) > 0:
+      #  print(tag_ids)
+
 
     color_img = cv2.cvtColor(grayFrame, cv2.COLOR_GRAY2RGB)
 
     for tag in tags:
-        for idx in range(len(tag.corners)):
-           cv2.line(color_img, tuple(tag.corners[idx-1, :].astype(int)), tuple(tag.corners[idx, :].astype(int)), (0, 255, 0))
+        if tag.decision_margin > 50:
+               
+            for idx in range(len(tag.corners)):
+                cv2.line(color_img, tuple(tag.corners[idx-1, :].astype(int)), tuple(tag.corners[idx, :].astype(int)), (0, 255, 0))
 
-        cv2.putText(color_img, str(tag.tag_id),
-                    org=(tag.corners[0, 0].astype(int)+10,tag.corners[0, 1].astype(int)+10),
-                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.8,
-                    color=(0, 0, 255))
+                cv2.putText(color_img, str(tag.tag_id),
+                        org=(tag.corners[0, 0].astype(int)+10,tag.corners[0, 1].astype(int)+10),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.8,
+                        color=(0, 0, 255))
     
     cv2.imshow('Detected tags for ' , color_img)
       

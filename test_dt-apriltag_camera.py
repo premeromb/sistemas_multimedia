@@ -3,6 +3,8 @@ import cv2
 from dt_apriltags import Detector
 import numpy as np
 import time
+import operator 
+
 
 at_detector = Detector(families='tag16h5',
                        nthreads=1,
@@ -31,9 +33,12 @@ def checkForTags():
 
   captured = []
 
+  
+
   while int(time.time() - start_time) < capture_duration:
 
       # Capture the video frame
+      # by frame
       ret, frame = vid.read()
       grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -44,10 +49,13 @@ def checkForTags():
 
       tag_ids = [tag.tag_id for tag in tags]
 
+      #if len(tag_ids) > 0:
+      #  print(tag_ids)
+
       color_img = cv2.cvtColor(grayFrame, cv2.COLOR_GRAY2RGB)
 
       for tag in tags:
-          if tag.decision_margin > 55:
+          if tag.decision_margin > 65:
 
               for idx in range(len(tag.corners)):
                   cv2.line(color_img, tuple(
@@ -60,16 +68,35 @@ def checkForTags():
                               fontScale=0.8,
                               color=(0, 0, 255))
 
-              if tag.tag_id not in captured:
-                captured.append(tag.tag_id)
-              
+              if tag.tag_id not in [tag.tag_id for tag in captured]:
+                captured.append(tag)
+
       cv2.imshow('Detected tags for ', color_img)
+
+      # the 'q' button is set as the
+      # quitting button you may use any
+      # desired button of your choice
+      if cv2.waitKey(1) & 0xFF == ord('q'):
+          break
 
   return captured
 
-print(checkForTags())
+
+tagsOnTable = checkForTags() 
+
+#tagsOnTable.sort(key=operator.attrgetter(center[0]))
+tagsOnTable.sort(key=lambda x: x.center[0], reverse=True)
+
+orderIdTags = [tag.tag_id for tag in tagsOnTable]
+
+#for tag in tagsOnTable:
+#  print("ID: {} POSITION: {} {}".format(tag.tag_id, tag.center[0], tag.center[1]))
+
+print(orderIdTags)
 
 # After the loop release the cap object
 vid.release()
 # Destroy all the windows
 cv2.destroyAllWindows()
+
+

@@ -5,6 +5,12 @@ import numpy as np
 import time
 import operator
 
+import pyttsx3
+
+import struct
+import pyaudio
+import pvporcupine
+
 
 at_detector = Detector(families='tag16h5',
                        nthreads=1,
@@ -25,6 +31,77 @@ vid = cv2.VideoCapture(0)
 # Check if camera opened successfully
 if (vid.isOpened() == False):
   print("Error opening video  file")
+
+
+def saludo():
+    print("entra en saludo")
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 120)
+    engine.setProperty('voice', 'spanish')
+    engine.setProperty('volume', 1)
+
+    engine.say("Hola me llamo terminator")
+
+    engine.runAndWait()
+
+    print("sale de saludo")
+
+def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga con resultado de error
+    print("entra en esperaSaludo")
+
+    porcupine = None
+    pa = None
+    audio_stream = None
+
+    try:
+        porcupine = pvporcupine.create(keywords=['terminator'], sensitivities=[1.0])
+
+        pa = pyaudio.PyAudio()
+
+        audio_stream = pa.open(
+                        rate=porcupine.sample_rate,
+                        channels=1,
+                        format=pyaudio.paInt16,
+                        input=True,
+                        frames_per_buffer=porcupine.frame_length,
+                        input_device_index=7)
+
+    
+
+        while True:
+            pcm = audio_stream.read(porcupine.frame_length)
+            pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
+
+            keyword_index = porcupine.process(pcm)
+
+            if keyword_index >= 0:
+                print("DETECTADA!")
+                # pa.close()
+                break
+        
+    finally:
+        if porcupine is not None:
+            porcupine.delete()
+
+        if audio_stream is not None:
+            audio_stream.close()
+
+        if pa is not None:
+                pa.terminate()
+                
+    print("sale de esperaSaludo")
+
+
+def explicaJuego():
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 120)
+    engine.setProperty('voice', 'spanish')
+    engine.setProperty('volume', 1)
+
+    engine.say("En esta primera versión vamos a ordenar en orden creciente las fichas que tenemos sobre la mesa intercambiando sus posiciones.")
+    engine.say("¡Comenzemos!")
+    engine.runAndWait()
+
 
 
 def checkForTags():
@@ -96,53 +173,67 @@ def waitForAcction():
     time.sleep(5)
     print("Time is up!")
 
+def juego ():
 
-#print ("La accion elegida ha sido {}".format(accion))
-print("\nOrdena la secuencia\n")
+    #print ("La accion elegida ha sido {}".format(accion))
+    print("\nOrdena la secuencia\n")
 
-secuencia = getTagsIdOrder()
-
-
-
-while (True):
-
-    print("\n  Estado actual {}".format(secuencia))
-
-    if secuencia == [0, 1, 2]:
-        print("No hay que hacer nada: WIN!")
-        break
-    elif secuencia == [0, 2, 1]:
-        print("   ACCION: Cambio de posicion 2/3")
-        waitForAcction()
-        secuencia = getTagsIdOrder()
-    elif secuencia == [1, 0, 2]:
-        print("   ACCION: Cambio de posicion 1/2")
-        waitForAcction()
-        secuencia = getTagsIdOrder()
-    elif secuencia == [1, 2, 0]:
-        print("   ACCION: Cambio de posicion 1/2")
-        waitForAcction()
-        secuencia = getTagsIdOrder()
-    elif secuencia == [2, 0, 1]:
-        print("   ACCION: Cambio de posicion 1/2")
-        waitForAcction()
-        secuencia = getTagsIdOrder()
-    elif secuencia == [2, 1, 0]:
-        print("   ACCION: Cambio de posicion 1/3")
-        waitForAcction()
-        secuencia = getTagsIdOrder()
-    else: 
-        print("ERROR: Secuencia detectada invalida")
-        break
+    secuencia = getTagsIdOrder()
 
 
-    
+    while (True):
+
+        print("\n  Estado actual {}".format(secuencia))
+
+        if secuencia == [0, 1, 2]:
+            print("No hay que hacer nada: WIN!")
+            break
+        elif secuencia == [0, 2, 1]:
+            print("   ACCION: Cambio de posicion 2/3")
+            waitForAcction()
+            secuencia = getTagsIdOrder()
+        elif secuencia == [1, 0, 2]:
+            print("   ACCION: Cambio de posicion 1/2")
+            waitForAcction()
+            secuencia = getTagsIdOrder()
+        elif secuencia == [1, 2, 0]:
+            print("   ACCION: Cambio de posicion 1/2")
+            waitForAcction()
+            secuencia = getTagsIdOrder()
+        elif secuencia == [2, 0, 1]:
+            print("   ACCION: Cambio de posicion 1/2")
+            waitForAcction()
+            secuencia = getTagsIdOrder()
+        elif secuencia == [2, 1, 0]:
+            print("   ACCION: Cambio de posicion 1/3")
+            waitForAcction()
+            secuencia = getTagsIdOrder()
+        else: 
+            print("ERROR: Secuencia detectada invalida")
+            break
+
+    # After the loop release the cap object
+    vid.release()
+    # Destroy all the windows
+    cv2.destroyAllWindows()
 
 
 
-# After the loop release the cap object
-vid.release()
-# Destroy all the windows
-cv2.destroyAllWindows()
+
+
+print("COMIENZA JUEGO!")
+time.sleep(1)
+
+saludo()
+
+esperaSaludo() 
+
+explicaJuego()
+
+print("Si entiendes las reglas del juego di \"DE ACUERDO TERMINATOR!\" ")
+time.sleep(1)
+
+esperaSaludo()
+ #time.sleep(500)
 
 

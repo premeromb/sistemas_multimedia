@@ -5,6 +5,8 @@ import numpy as np
 import time
 import enum
 
+import dlib
+
 import operator
 
 import pyttsx3
@@ -13,6 +15,7 @@ import struct
 import pyaudio
 import pvporcupine
 
+import face_recognition
 
 at_detector = Detector(families='tag16h5',
                        nthreads=1,
@@ -102,7 +105,6 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
                         frames_per_buffer=porcupine.frame_length,
                         input_device_index=7)
 
-    
 
         while True:
             pcm = audio_stream.read(porcupine.frame_length)
@@ -134,10 +136,12 @@ def explicaJuego():
     engine.setProperty('voice', 'spanish')
     engine.setProperty('volume', 1)
 
-    #engine.say("En esta primera versión vamos a ordenar en orden creciente las fichas que tenemos sobre la mesa intercambiando sus posiciones.")
+    engine.say("En esta primera versión vamos a ordenar en orden creciente las fichas que tenemos sobre la mesa intercambiando sus posiciones.")
     engine.say("¡Comenzemos!")
     engine.runAndWait()
 
+def buscaCaras():
+    return face_recognition.recognition()
 
 
 def checkForTags():
@@ -260,52 +264,55 @@ def juego ():
     cv2.destroyAllWindows()
 
 
-
-
-
-
-
 def personaPresente():
     return True
 
-while(True):
 
-    if estado_actual == gameState.inicial:
-        print("inicio")
-        estado_actual = gameState.saludo
-    elif estado_actual == gameState.saludo:
-        print("un saludo")
-        estado_actual = gameState.espera_saludo
-        saludo()
-    elif estado_actual == gameState.espera_saludo:
-        print("espera saludo")
-        esperaSaludo()
-        estado_actual = gameState.explicacion_regla_juego # temporal
-        #if not personaPresente():
-        #    estado_actual = gameState.saludo
-        #else:
-        #    estado_actual = gameState.explicacion_regla_juego
-    elif estado_actual == gameState.explicacion_regla_juego:
-        print("Explica juego")
-        estado_actual = gameState.espera_confirmacion_regla_juego
-        explicaJuego()
-    elif estado_actual == gameState.espera_confirmacion_regla_juego:
-        print("esperando confinrmacion regla_juego")
-        estado_actual = gameState.juego
-        esperaSaludo()
-    elif estado_actual == gameState.juego and not personaPresente():
-        print("suspenderJuego()")
-        estado_actual = gameState.inicial
-    elif estado_actual == gameState.juego:
-        print("juego()")
-        estado_actual = gameState.fin_juego
-        juego()
-    elif estado_actual == gameState.fin_juego:
-        print("WIN!")
-        #fin()
-        estado_actual = gameState.inicial
-        mensajeFinJuego()
-        exit()
+def logicaJuego():
 
+    global estado_actual
+
+    while(True):
+
+        if estado_actual == gameState.inicial:
+            print("inicio")
+            estado_actual = gameState.saludo
+        elif estado_actual == gameState.saludo:
+            print("un saludo")
+            estado_actual = gameState.espera_saludo
+            saludo()
+        elif estado_actual == gameState.espera_saludo:
+            print("espera saludo")
+            esperaSaludo()
+            estado_actual = gameState.explicacion_regla_juego # temporal
+            #if not personaPresente():
+            #    estado_actual = gameState.saludo
+            #else:
+            #    estado_actual = gameState.explicacion_regla_juego
+        elif estado_actual == gameState.explicacion_regla_juego:
+            print("Explica juego")
+            estado_actual = gameState.espera_confirmacion_regla_juego
+            explicaJuego()
+        elif estado_actual == gameState.espera_confirmacion_regla_juego:
+            print("esperando confinrmacion regla_juego")
+            estado_actual = gameState.juego
+            esperaSaludo()
+        elif estado_actual == gameState.juego and not personaPresente():
+            print("suspenderJuego()")
+            estado_actual = gameState.inicial
+        elif estado_actual == gameState.juego:
+            print("juego()")
+            estado_actual = gameState.fin_juego
+            juego()
+        elif estado_actual == gameState.fin_juego:
+            print("WIN!")
+            #fin()
+            estado_actual = gameState.inicial
+            mensajeFinJuego()
+            exit()
+
+logicaJuego()
+
+#buscaCaras()
 
 

@@ -3,6 +3,8 @@ import cv2
 from dt_apriltags import Detector
 import numpy as np
 import time
+import enum
+
 import operator
 
 import pyttsx3
@@ -23,7 +25,7 @@ at_detector = Detector(families='tag16h5',
 camera_params = (336.7755634193813, 336.02729840829176,
                  333.3575643300718, 212.77376312080065)
 
-capture_duration = 3
+capture_duration = 4
 
 # define a video capture object
 vid = cv2.VideoCapture(0)
@@ -32,6 +34,17 @@ vid = cv2.VideoCapture(0)
 if (vid.isOpened() == False):
   print("Error opening video  file")
 
+
+class gameState(enum.Enum):
+    inicial = 0
+    saludo = 1
+    espera_saludo = 2
+    explicacion_regla_juego = 3
+    espera_confirmacion_regla_juego = 4
+    juego = 5
+    fin_juego = 6
+
+estado_actual = gameState.inicial
 
 def saludo():
     print("entra en saludo")
@@ -45,6 +58,29 @@ def saludo():
     engine.runAndWait()
 
     print("sale de saludo")
+
+def mensajeFinJuego():
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 120)
+    engine.setProperty('voice', 'spanish')
+    engine.setProperty('volume', 1)
+
+    engine.say("¡Enhorabuena, has ganado!")
+
+    engine.runAndWait()
+
+def mensajeCambioPosiociones(ficha1, ficha2):
+    engine = pyttsx3.init()
+    engine.setProperty('rate', 120)
+    engine.setProperty('voice', 'spanish')
+    engine.setProperty('volume', 1)
+
+    engine.say("Cambia la posición {} por la {}".format(ficha1, ficha2))
+
+    engine.runAndWait()
+
+
+
 
 def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga con resultado de error
     print("entra en esperaSaludo")
@@ -98,7 +134,7 @@ def explicaJuego():
     engine.setProperty('voice', 'spanish')
     engine.setProperty('volume', 1)
 
-    engine.say("En esta primera versión vamos a ordenar en orden creciente las fichas que tenemos sobre la mesa intercambiando sus posiciones.")
+    #engine.say("En esta primera versión vamos a ordenar en orden creciente las fichas que tenemos sobre la mesa intercambiando sus posiciones.")
     engine.say("¡Comenzemos!")
     engine.runAndWait()
 
@@ -187,25 +223,31 @@ def juego ():
 
         if secuencia == [0, 1, 2]:
             print("No hay que hacer nada: WIN!")
+            estado_actual == gameState.fin_juego
             break
         elif secuencia == [0, 2, 1]:
             print("   ACCION: Cambio de posicion 2/3")
+            mensajeCambioPosiociones(2,3)
             waitForAcction()
             secuencia = getTagsIdOrder()
         elif secuencia == [1, 0, 2]:
             print("   ACCION: Cambio de posicion 1/2")
+            mensajeCambioPosiociones(1,2)
             waitForAcction()
             secuencia = getTagsIdOrder()
         elif secuencia == [1, 2, 0]:
             print("   ACCION: Cambio de posicion 1/2")
+            mensajeCambioPosiociones(1,2)
             waitForAcction()
             secuencia = getTagsIdOrder()
         elif secuencia == [2, 0, 1]:
             print("   ACCION: Cambio de posicion 1/2")
+            mensajeCambioPosiociones(1,2)
             waitForAcction()
             secuencia = getTagsIdOrder()
         elif secuencia == [2, 1, 0]:
             print("   ACCION: Cambio de posicion 1/3")
+            mensajeCambioPosiociones(1,3)
             waitForAcction()
             secuencia = getTagsIdOrder()
         else: 
@@ -221,19 +263,49 @@ def juego ():
 
 
 
-print("COMIENZA JUEGO!")
-time.sleep(1)
 
-saludo()
 
-esperaSaludo() 
+def personaPresente():
+    return True
 
-explicaJuego()
+while(True):
 
-print("Si entiendes las reglas del juego di \"DE ACUERDO TERMINATOR!\" ")
-time.sleep(1)
+    if estado_actual == gameState.inicial:
+        print("inicio")
+        estado_actual = gameState.saludo
+    elif estado_actual == gameState.saludo:
+        print("un saludo")
+        estado_actual = gameState.espera_saludo
+        saludo()
+    elif estado_actual == gameState.espera_saludo:
+        print("espera saludo")
+        esperaSaludo()
+        estado_actual = gameState.explicacion_regla_juego # temporal
+        #if not personaPresente():
+        #    estado_actual = gameState.saludo
+        #else:
+        #    estado_actual = gameState.explicacion_regla_juego
+    elif estado_actual == gameState.explicacion_regla_juego:
+        print("Explica juego")
+        estado_actual = gameState.espera_confirmacion_regla_juego
+        explicaJuego()
+    elif estado_actual == gameState.espera_confirmacion_regla_juego:
+        print("esperando confinrmacion regla_juego")
+        estado_actual = gameState.juego
+        esperaSaludo()
+    elif estado_actual == gameState.juego and not personaPresente():
+        print("suspenderJuego()")
+        estado_actual = gameState.inicial
+    elif estado_actual == gameState.juego:
+        print("juego()")
+        estado_actual = gameState.fin_juego
+        juego()
+    elif estado_actual == gameState.fin_juego:
+        print("WIN!")
+        #fin()
+        estado_actual = gameState.inicial
+        mensajeFinJuego()
+        exit()
 
-esperaSaludo()
- #time.sleep(500)
 
 

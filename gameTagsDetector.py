@@ -56,35 +56,25 @@ class gameState(enum.Enum):
 
 estado_actual = gameState.inicial
 
-
-
-def saludo():
-
-    tts = gTTS(text="¡Hola! me llamo terminator", lang='es')
+def speak (text):
+    tts = gTTS(text=text, lang='es')
     filename = 'temp.mp3'
     tts.save(filename)
-
     playsound(filename)
     os.remove(filename) #remove temperory file
 
+def saludo():
+    speak("¡Hola! me llamo terminator")
 
 def mensajeFinJuego():
-
-    tts = gTTS(text='¡Enhorabuena, has ganado!', lang='es')
-    filename = '/tmp/temp.mp3'
-    tts.save(filename)
-    playsound(filename)
-    os.remove(filename) #remove temperory file
-
-    
+     speak("¡Enhorabuena, has ganado!")
 
 def mensajeCambioPosiociones(ficha1, ficha2):
+    speak("Cambia la posición {} por la {}".format(ficha1, ficha2))
 
-    tts = gTTS(text="Cambia la posición {} por la {}".format(ficha1, ficha2), lang='es')
-    filename = '/tmp/temp.mp3'
-    tts.save(filename)
-    playsound(filename)
-    os.remove(filename) #remove temperory file
+def explicaJuego():
+    speak("mensaje")
+    #speak(text='En esta primera versión, pondremos en orden creciente las fichas intercambiando sus posiciones.')
 
 
 
@@ -109,7 +99,7 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
                         frames_per_buffer=porcupine.frame_length,
                         input_device_index=11)
 
-
+        print("Microfono listo")
         while True:
             pcm = audio_stream.read(porcupine.frame_length)
             pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
@@ -133,14 +123,6 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
                 
     print("sale de esperaSaludo")
 
-
-def explicaJuego():
-
-    tts = gTTS(text='En esta primera versión, pondremos en orden creciente las fichas intercambiando sus posiciones.', lang='es')
-    filename = '/tmp/temp.mp3'
-    tts.save(filename)
-    playsound(filename)
-    os.remove(filename) #remove temperory file
 
 
 def buscaCaras():
@@ -228,31 +210,31 @@ def juego ():
 
         print("\n  Estado actual {}".format(secuencia))
 
-        if secuencia == [0, 1, 2]:
+        if secuencia == [0, 1, 6]:
             print("No hay que hacer nada: WIN!")
             estado_actual == gameState.fin_juego
             break
-        elif secuencia == [0, 2, 1]:
+        elif secuencia == [0, 6, 1]:
             print("   ACCION: Cambio de posicion 2/3")
-            mensajeCambioPosiociones(5,3)
+            mensajeCambioPosiociones(2,3)
             waitForAcction()
             secuencia = getTagsIdOrder()
-        elif secuencia == [1, 0, 2]:
+        elif secuencia == [1, 0, 6]:
             print("   ACCION: Cambio de posicion 1/2")
             mensajeCambioPosiociones(1,2)
             waitForAcction()
             secuencia = getTagsIdOrder()
-        elif secuencia == [1, 2, 0]:
+        elif secuencia == [1, 6, 0]:
             print("   ACCION: Cambio de posicion 1/2")
             mensajeCambioPosiociones(1,2)
             waitForAcction()
             secuencia = getTagsIdOrder()
-        elif secuencia == [2, 0, 1]:
+        elif secuencia == [6, 0, 1]:
             print("   ACCION: Cambio de posicion 1/2")
             mensajeCambioPosiociones(1,2)
             waitForAcction()
             secuencia = getTagsIdOrder()
-        elif secuencia == [2, 1, 0]:
+        elif secuencia == [6, 1, 0]:
             print("   ACCION: Cambio de posicion 1/3")
             mensajeCambioPosiociones(1,3)
             waitForAcction()
@@ -318,5 +300,3 @@ def logicaJuego():
 logicaJuego()
 
 #buscaCaras()
-
-

@@ -9,13 +9,20 @@ import dlib
 
 import operator
 
-import pyttsx3
 
 import struct
 import pyaudio
 import pvporcupine
 
 import face_recognition
+
+from gtts import gTTS
+from time import sleep
+import os
+import pyglet
+
+
+from playsound import playsound
 
 at_detector = Detector(families='tag16h5',
                        nthreads=1,
@@ -49,38 +56,35 @@ class gameState(enum.Enum):
 
 estado_actual = gameState.inicial
 
+
+
 def saludo():
-    print("entra en saludo")
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 120)
-    engine.setProperty('voice', 'spanish')
-    engine.setProperty('volume', 1)
 
-    engine.say("Hola me llamo terminator")
+    tts = gTTS(text="¡Hola! me llamo terminator", lang='es')
+    filename = 'temp.mp3'
+    tts.save(filename)
 
-    engine.runAndWait()
+    playsound(filename)
+    os.remove(filename) #remove temperory file
 
-    print("sale de saludo")
 
 def mensajeFinJuego():
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 120)
-    engine.setProperty('voice', 'spanish')
-    engine.setProperty('volume', 1)
 
-    engine.say("¡Enhorabuena, has ganado!")
+    tts = gTTS(text='¡Enhorabuena, has ganado!', lang='es')
+    filename = '/tmp/temp.mp3'
+    tts.save(filename)
+    playsound(filename)
+    os.remove(filename) #remove temperory file
 
-    engine.runAndWait()
+    
 
 def mensajeCambioPosiociones(ficha1, ficha2):
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 120)
-    engine.setProperty('voice', 'spanish')
-    engine.setProperty('volume', 1)
 
-    engine.say("Cambia la posición {} por la {}".format(ficha1, ficha2))
-
-    engine.runAndWait()
+    tts = gTTS(text="Cambia la posición {} por la {}".format(ficha1, ficha2), lang='es')
+    filename = '/tmp/temp.mp3'
+    tts.save(filename)
+    playsound(filename)
+    os.remove(filename) #remove temperory file
 
 
 
@@ -103,7 +107,7 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
                         format=pyaudio.paInt16,
                         input=True,
                         frames_per_buffer=porcupine.frame_length,
-                        input_device_index=7)
+                        input_device_index=11)
 
 
         while True:
@@ -131,14 +135,13 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
 
 
 def explicaJuego():
-    engine = pyttsx3.init()
-    engine.setProperty('rate', 120)
-    engine.setProperty('voice', 'spanish')
-    engine.setProperty('volume', 1)
 
-    engine.say("En esta primera versión vamos a ordenar en orden creciente las fichas que tenemos sobre la mesa intercambiando sus posiciones.")
-    engine.say("¡Comenzemos!")
-    engine.runAndWait()
+    tts = gTTS(text='En esta primera versión, pondremos en orden creciente las fichas intercambiando sus posiciones.', lang='es')
+    filename = '/tmp/temp.mp3'
+    tts.save(filename)
+    playsound(filename)
+    os.remove(filename) #remove temperory file
+
 
 def buscaCaras():
     return face_recognition.recognition()
@@ -210,7 +213,7 @@ def getTagsIdOrder():
 
 def waitForAcction():
     print("Waiting ....")
-    time.sleep(5)
+    time.sleep(3)
     print("Time is up!")
 
 def juego ():
@@ -231,7 +234,7 @@ def juego ():
             break
         elif secuencia == [0, 2, 1]:
             print("   ACCION: Cambio de posicion 2/3")
-            mensajeCambioPosiociones(2,3)
+            mensajeCambioPosiociones(5,3)
             waitForAcction()
             secuencia = getTagsIdOrder()
         elif secuencia == [1, 0, 2]:
@@ -256,7 +259,8 @@ def juego ():
             secuencia = getTagsIdOrder()
         else: 
             print("ERROR: Secuencia detectada invalida")
-            break
+            secuencia = getTagsIdOrder()
+            
 
     # After the loop release the cap object
     vid.release()

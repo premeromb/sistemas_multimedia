@@ -1,12 +1,15 @@
 import cv2
 import dlib
- 
+from timeit import default_timer as timer
+
  
 def recognition():
     
+    start = timer()
+
     detector=dlib.get_frontal_face_detector()
     
-    cap=cv2.VideoCapture(2)
+    cap=cv2.VideoCapture(0)
     
     while True:
         _, frame= cap.read()
@@ -18,8 +21,10 @@ def recognition():
         if len(faces) > 0:
             return True
         
-        if(cv2.waitKey(delay=1))== 10:
-            break
+
+        if (timer() - start) > 3:
+            return False
     
     cap.release()
     
+

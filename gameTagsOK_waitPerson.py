@@ -15,6 +15,7 @@ import pyaudio
 import pvporcupine
 
 import face_recognition
+import eyes_recognition
 
 from gtts import gTTS
 
@@ -130,8 +131,8 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
 
 
 def buscaCaras():
-    return face_recognition.recognition()
-
+    #return face_recognition.recognition()
+    return eyes_recognition.detector()
 
 def checkForTags():
 
@@ -269,36 +270,40 @@ def logicaJuego():
             estado_actual = gameState.saludo
         elif estado_actual == gameState.saludo:
             print("un saludo")
-            estado_actual = gameState.espera_saludo
             saludo()
+            estado_actual = gameState.espera_saludo
+            print("    ¿Hay alguien ahi?")
+            if not personaPresente():
+                print("    no hay nadie presente")
+                estado_actual = gameState.saludo
+            else:
+                print("    detecta persona")
+                estado_actual = gameState.espera_saludo
         elif estado_actual == gameState.espera_saludo:
             print("espera saludo")
             esperaSaludo()
-            # estado_actual = gameState.explicacion_regla_juego # temporal
-            if not personaPresente():
-                print("                   no hay nadie presente")
-                estado_actual = gameState.saludo
-            else:
-                print("                       detecta persona")
-                estado_actual = gameState.explicacion_regla_juego
+            estado_actual = gameState.explicacion_regla_juego             
         elif estado_actual == gameState.explicacion_regla_juego:
             print("Explica juego")
             estado_actual = gameState.espera_confirmacion_regla_juego
             explicaJuego()
+            # print("    ¿Hay alguien ahi?")
+            # if not personaPresente():
+            #     print("    no hay nadie presente")
+            #     estado_actual = gameState.saludo
+            # else:
+            #     print("    detecta persona")
+            #     estado_actual = gameState.espera_confirmacion_regla_juego
         elif estado_actual == gameState.espera_confirmacion_regla_juego:
             print("esperando confinrmacion regla_juego")
             estado_actual = gameState.juego
             esperaSaludo()
-        elif estado_actual == gameState.juego and not personaPresente():
-            print("suspenderJuego()")
-            estado_actual = gameState.inicial
         elif estado_actual == gameState.juego:
             print("juego()")
             estado_actual = gameState.fin_juego
             juego()
         elif estado_actual == gameState.fin_juego:
             print("WIN!")
-            #fin()
             estado_actual = gameState.inicial
             mensajeFinJuego()
             exit()

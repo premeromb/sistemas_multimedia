@@ -3,10 +3,10 @@ import dlib
  
  
 def recognition():
-
+    
     detector=dlib.get_frontal_face_detector()
     
-    cap=cv2.VideoCapture(0)
+    cap=cv2.VideoCapture(2)
     
     while True:
         _, frame= cap.read()

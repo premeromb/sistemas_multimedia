@@ -1,4 +1,4 @@
-# import the opencv library
+
 import cv2
 from dt_apriltags import Detector
 import numpy as np
@@ -15,9 +15,12 @@ import pyaudio
 import pvporcupine
 
 import face_recognition
+import eyes_recognition
 
 from gtts import gTTS
+
 from time import sleep
+
 import os
 import pyglet
 
@@ -36,6 +39,8 @@ camera_params = (336.7755634193813, 336.02729840829176,
                  333.3575643300718, 212.77376312080065)
 
 capture_duration = 4
+
+
 
 # define a video capture object
 vid = cv2.VideoCapture(0)
@@ -73,13 +78,13 @@ def mensajeCambioPosiociones(ficha1, ficha2):
     speak("Cambia la posición {} por la {}".format(ficha1, ficha2))
 
 def explicaJuego():
-    speak("mensaje")
-    #speak(text='En esta primera versión, pondremos en orden creciente las fichas intercambiando sus posiciones.')
+    #speak("mensaje")  # for test pourpose
+    speak(text='En esta primera versión, pondremos en orden creciente las fichas intercambiando sus posiciones.')
 
 
 
 
-def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga con resultado de error
+def esperaSaludo():
     print("entra en esperaSaludo")
 
     porcupine = None
@@ -108,7 +113,6 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
 
             if keyword_index >= 0:
                 print("DETECTADA!")
-                # pa.close()
                 break
         
     finally:
@@ -126,8 +130,8 @@ def esperaSaludo(): # añadir un temporizador que dado un tiempo maximo se salga
 
 
 def buscaCaras():
-    return face_recognition.recognition()
-
+    #return face_recognition.recognition()  # reconocimiento de rostro
+    return eyes_recognition.detector()      # reconociemiento de ojos
 
 def checkForTags():
 
@@ -138,7 +142,6 @@ def checkForTags():
   while int(time.time() - start_time) < capture_duration:
 
       # Capture the video frame
-      # by frame
       ret, frame = vid.read()
       grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -148,9 +151,6 @@ def checkForTags():
       tags = at_detector.detect(grayFrame, True, camera_params, 0.2)
 
       tag_ids = [tag.tag_id for tag in tags]
-
-      #if len(tag_ids) > 0:
-      #  print(tag_ids)
 
       color_img = cv2.cvtColor(grayFrame, cv2.COLOR_GRAY2RGB)
 
@@ -173,12 +173,6 @@ def checkForTags():
 
       cv2.imshow('Detected tags for ', color_img)
 
-      # the 'q' button is set as the
-      # quitting button you may use any
-      # desired button of your choice
-      if cv2.waitKey(1) & 0xFF == ord('q'):
-          break
-
   return captured
 
 
@@ -199,12 +193,10 @@ def waitForAcction():
     print("Time is up!")
 
 def juego ():
-
     #print ("La accion elegida ha sido {}".format(accion))
     print("\nOrdena la secuencia\n")
 
     secuencia = getTagsIdOrder()
-
 
     while (True):
 
@@ -235,8 +227,8 @@ def juego ():
             waitForAcction()
             secuencia = getTagsIdOrder()
         elif secuencia == [6, 1, 0]:
-            print("   ACCION: Cambio de posicion 1/3")
-            mensajeCambioPosiociones(1,3)
+            print("   ACCION: Cambio de posicion 3/1")
+            mensajeCambioPosiociones(3,1)
             waitForAcction()
             secuencia = getTagsIdOrder()
         else: 
@@ -251,7 +243,7 @@ def juego ():
 
 
 def personaPresente():
-    return True
+    return face_recognition.recognition()
 
 
 def logicaJuego():
@@ -265,38 +257,43 @@ def logicaJuego():
             estado_actual = gameState.saludo
         elif estado_actual == gameState.saludo:
             print("un saludo")
-            estado_actual = gameState.espera_saludo
             saludo()
+            estado_actual = gameState.espera_saludo
+            print("    ¿Hay alguien ahi?")
+            if not personaPresente():
+                print("    no hay nadie presente")
+                speak("No hay nadie frente a la cámara")
+                estado_actual = gameState.saludo
+            else:
+                print("    detecta persona")
+                estado_actual = gameState.espera_saludo
         elif estado_actual == gameState.espera_saludo:
             print("espera saludo")
             esperaSaludo()
-            estado_actual = gameState.explicacion_regla_juego # temporal
-            #if not personaPresente():
-            #    estado_actual = gameState.saludo
-            #else:
-            #    estado_actual = gameState.explicacion_regla_juego
+            estado_actual = gameState.explicacion_regla_juego             
         elif estado_actual == gameState.explicacion_regla_juego:
             print("Explica juego")
             estado_actual = gameState.espera_confirmacion_regla_juego
             explicaJuego()
+            # print("    ¿Hay alguien ahi?")
+            # if not personaPresente():
+            #     print("    no hay nadie presente")
+            #     estado_actual = gameState.saludo
+            # else:
+            #     print("    detecta persona")
+            #     estado_actual = gameState.espera_confirmacion_regla_juego
         elif estado_actual == gameState.espera_confirmacion_regla_juego:
             print("esperando confinrmacion regla_juego")
             estado_actual = gameState.juego
             esperaSaludo()
-        elif estado_actual == gameState.juego and not personaPresente():
-            print("suspenderJuego()")
-            estado_actual = gameState.inicial
         elif estado_actual == gameState.juego:
             print("juego()")
             estado_actual = gameState.fin_juego
             juego()
         elif estado_actual == gameState.fin_juego:
             print("WIN!")
-            #fin()
             estado_actual = gameState.inicial
             mensajeFinJuego()
             exit()
 
 logicaJuego()
-
-#buscaCaras()
